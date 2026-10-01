@@ -8,12 +8,12 @@
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital@0;1&display=swap');
 
         :root {
-            --bg-color: #07090f;
+            --bg-color: #04060d;
             --gold: #d4af37;
             --gold-dim: #8c6a28;
             --text-main: #e2dcd3;
             --text-dim: #9da7b3;
-            --modal-bg: #11141c;
+            --modal-bg: rgba(17, 20, 28, 0.95);
         }
 
         body, html {
@@ -22,11 +22,29 @@
             color: var(--text-main);
             font-family: 'EB Garamond', serif;
             overflow-x: hidden;
-            background-image: radial-gradient(circle at 50% 50%, #161a2b 0%, #07090f 100%);
+            background-image: radial-gradient(circle at 50% 50%, #161a2b 0%, #04060d 100%);
             min-height: 100vh;
         }
 
-        h1, h2, h3, .tab-btn, .lang-btn {
+        /* --- NEU: Deep Space Hintergrund --- */
+        canvas#sky {
+            position: fixed; inset: 0; width: 100%; height: 100%; z-index: -3; pointer-events: none;
+        }
+        .nebula-layer {
+            position: fixed; inset: -20%; z-index: -2; pointer-events: none; mix-blend-mode: screen; filter: blur(36px);
+        }
+        .nebula-1 {
+            background: 
+                radial-gradient(ellipse 45% 35% at 20% 25%, rgba(138, 43, 226, 0.15), transparent 70%),
+                radial-gradient(ellipse 40% 30% at 80% 30%, rgba(255, 64, 129, 0.12), transparent 70%);
+            animation: driftNebula 90s ease-in-out infinite alternate;
+        }
+        @keyframes driftNebula {
+            0% { transform: translate(-3%, -2%) scale(1) rotate(0deg); }
+            100% { transform: translate(3%, 2%) scale(1.15) rotate(5deg); }
+        }
+
+        h1, h2, h3, .tab-btn, .lang-btn, .sphere-title {
             font-family: 'Cinzel', serif;
         }
 
@@ -35,14 +53,16 @@
             position: absolute;
             top: 20px; right: 20px;
             display: flex; gap: 10px;
+            z-index: 10;
         }
         .lang-btn {
-            background: transparent;
+            background: rgba(4, 6, 13, 0.6);
             border: 1px solid var(--gold-dim);
             color: var(--gold-dim);
             padding: 5px 10px;
             cursor: pointer;
             transition: 0.3s;
+            backdrop-filter: blur(4px);
         }
         .lang-btn.active, .lang-btn:hover {
             background: var(--gold-dim);
@@ -53,6 +73,8 @@
         header {
             text-align: center;
             padding: 60px 20px 20px;
+            position: relative;
+            z-index: 1;
         }
         header h1 {
             font-size: 3rem;
@@ -60,6 +82,7 @@
             letter-spacing: 8px;
             margin: 0 0 10px 0;
             text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
         }
         header p {
             font-size: 1.2rem;
@@ -77,6 +100,8 @@
             max-width: 1000px;
             margin: 50px auto;
             padding: 20px;
+            position: relative;
+            z-index: 1;
         }
 
         .sphere {
@@ -88,27 +113,42 @@
         }
         .sphere:hover {
             transform: translateY(-10px) scale(1.05);
-            filter: drop-shadow(0 0 20px var(--gold-dim));
+            filter: drop-shadow(0 0 25px rgba(212, 175, 55, 0.4));
         }
 
+        /* --- UPDATE: NASA Planeten-Look --- */
         .planet {
             width: 100px;
             height: 100px;
             border-radius: 50%;
             margin-bottom: 15px;
-            box-shadow: inset -15px -15px 40px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.1);
+            position: relative;
+            /* Atmosphärische Schattierung für den 3D-Kugel-Effekt */
+            box-shadow: inset -15px -15px 30px rgba(0,0,0,0.9), 0 0 20px rgba(255,255,255,0.05);
+        }
+        .planet::after {
+            content: ""; position: absolute; inset: 0; border-radius: 50%;
+            box-shadow: inset 4px 4px 10px rgba(255,255,255,0.4); pointer-events: none;
         }
 
-        .p1 { background: radial-gradient(circle at 30% 30%, #4a6fa5, #1e2a3b); } /* Krone */
-        .p2 { background: radial-gradient(circle at 30% 30%, #528c73, #182e23); } /* Stirn */
-        .p3 { background: radial-gradient(circle at 30% 30%, #b56c42, #4a2110); } /* Hals */
-        .p4 { background: radial-gradient(circle at 30% 30%, #9e3d43, #381013); } /* Herz */
-        .p5 { background: radial-gradient(circle at 30% 30%, #c4a773, #4f4027); } /* Solarplexus */
-        .p6 { background: radial-gradient(circle at 30% 30%, #7a426f, #2b1326); } /* Sakral */
-        .p7 { background: radial-gradient(circle at 30% 30%, #d1c058, #4d4411); } /* Wurzel */
+        .p1 { background: radial-gradient(circle at 35% 35%, #7aa8ff 0%, #4a6fa5 45%, #1e2a3b 85%, #090e24 100%); }
+        .p2 { background: radial-gradient(circle at 35% 35%, #affce0 0%, #528c73 45%, #182e23 85%, #051f16 100%); }
+        .p3 { background: radial-gradient(circle at 35% 35%, #e67e22 0%, #b56c42 45%, #4a2110 85%, #1a0b05 100%); }
+        .p4 { background: radial-gradient(circle at 35% 35%, #ff9e94 0%, #9e3d43 45%, #381013 85%, #140507 100%); }
+        
+        /* Planet 5 mit Ring-System */
+        .p5 { background: radial-gradient(circle at 35% 35%, #e1d0ff 0%, #c4a773 45%, #4f4027 85%, #1c150c 100%); }
+        .p5::before {
+            content: ""; position: absolute; left: 50%; top: 50%; width: 180%; height: 40%;
+            transform: translate(-50%, -50%) rotate(-20deg); border-radius: 50%;
+            border: 3px solid rgba(196, 167, 115, 0.4);
+            box-shadow: 0 0 10px rgba(196, 167, 115, 0.2); pointer-events: none;
+        }
+
+        .p6 { background: radial-gradient(circle at 35% 35%, #ffb6c1 0%, #7a426f 45%, #2b1326 85%, #120710 100%); }
+        .p7 { background: radial-gradient(circle at 35% 35%, #fff6cc 0%, #d1c058 45%, #4d4411 85%, #1f1b07 100%); }
 
         .sphere-title {
-            font-family: 'Cinzel', serif;
             font-size: 1.1rem;
             color: var(--text-main);
             letter-spacing: 2px;
@@ -117,100 +157,58 @@
 
         /* Modal */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.6s ease;
-            backdrop-filter: blur(8px);
-            z-index: 1000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); display: flex;
+            justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.6s ease;
+            backdrop-filter: blur(8px); z-index: 1000;
         }
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
         .modal-content {
-            background: var(--modal-bg);
-            border: 2px solid var(--gold-dim);
-            max-width: 700px;
-            width: 90%;
-            border-radius: 4px;
-            padding: 40px;
-            position: relative;
+            background: var(--modal-bg); border: 2px solid var(--gold-dim);
+            max-width: 700px; width: 90%; border-radius: 4px; padding: 40px; position: relative;
             box-shadow: 0 0 50px rgba(0,0,0,0.9), inset 0 0 30px rgba(212, 175, 55, 0.1);
             text-align: center;
         }
 
         .close-btn {
-            position: absolute;
-            top: 15px; right: 20px;
-            font-size: 2rem;
-            color: var(--gold-dim);
-            cursor: pointer;
-            transition: color 0.3s;
+            position: absolute; top: 15px; right: 20px; font-size: 2rem;
+            color: var(--gold-dim); cursor: pointer; transition: color 0.3s;
         }
         .close-btn:hover { color: var(--gold); }
 
         #modal-title {
-            color: var(--gold);
-            font-size: 2.2rem;
-            margin-top: 0;
-            letter-spacing: 4px;
-            border-bottom: 1px solid var(--gold-dim);
-            padding-bottom: 20px;
+            color: var(--gold); font-size: 2.2rem; margin-top: 0;
+            letter-spacing: 4px; border-bottom: 1px solid var(--gold-dim); padding-bottom: 20px;
         }
 
         .tabs {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap;
         }
         .tab-btn {
-            background: transparent;
-            border: 1px solid var(--gold-dim);
-            color: var(--text-dim);
-            padding: 8px 15px;
-            cursor: pointer;
-            font-size: 1rem;
-            letter-spacing: 1px;
-            transition: all 0.3s;
+            background: transparent; border: 1px solid var(--gold-dim);
+            color: var(--text-dim); padding: 8px 15px; cursor: pointer;
+            font-size: 1rem; letter-spacing: 1px; transition: all 0.3s;
         }
-        .tab-btn.active, .tab-btn:hover {
-            background: var(--gold-dim);
-            color: #000;
-            font-weight: bold;
-        }
+        .tab-btn.active, .tab-btn:hover { background: var(--gold-dim); color: #000; font-weight: bold; }
 
-        .tab-content {
-            display: none;
-            font-size: 1.3rem;
-            line-height: 1.6;
-            animation: fadeIn 0.5s;
-        }
+        .tab-content { display: none; font-size: 1.3rem; line-height: 1.6; animation: fadeIn 0.5s; }
         .tab-content.active { display: block; }
         
         .bowl-indicator {
-            font-size: 0.9rem;
-            color: var(--gold-dim);
-            margin-top: 20px;
-            font-style: italic;
-            opacity: 0.6;
+            font-size: 0.9rem; color: var(--gold-dim); margin-top: 20px;
+            font-style: italic; opacity: 0.6;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
+
+    <!-- NEU: Canvas & Nebel -->
+    <canvas id="sky"></canvas>
+    <div class="nebula-layer nebula-1"></div>
 
     <div class="lang-switch">
         <button class="lang-btn active" onclick="setLanguage('de')" id="btn-de">DE</button>
@@ -249,47 +247,60 @@
     </div>
 
     <script>
-        // --- KLANGSCHALEN (Web Audio API) ---
-        // Die 7 Solfeggio/Chakra-Frequenzen für die Planeten
-        const bowlFreqs = [246.94, 440.00, 392.00, 349.23, 329.63, 293.66, 261.63]; 
-        let audioCtx;
+        // --- UPDATE: KRISTALL-KLANGSCHALEN (Web Audio API) ---
+        // Die reinen 432-Hz basierten Frequenzen
+        const bowlFreqs = [432, 486, 540, 576, 648, 720, 864]; 
+        let audioCtx, masterGain;
+
+        function initAudio() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+            
+            // Hochpassfilter: Verhindert tiefes Wummern, lässt nur helles Kristallsingen durch
+            const highpass = audioCtx.createBiquadFilter();
+            highpass.type = 'highpass';
+            highpass.frequency.setValueAtTime(220, audioCtx.currentTime);
+            
+            masterGain.connect(highpass);
+            highpass.connect(audioCtx.destination);
+        }
 
         function playSingingBowl(index) {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            initAudio();
             if (audioCtx.state === 'suspended') audioCtx.resume();
             
             const freq = bowlFreqs[index];
-            
-            // Oszillator 1 (Hauptton)
-            const osc1 = audioCtx.createOscillator();
-            const gain1 = audioCtx.createGain();
-            osc1.type = 'sine';
-            osc1.frequency.value = freq;
-            
-            // Oszillator 2 (Leicht verstimmt für das "Wummern"/Schwingen der Schale)
-            const osc2 = audioCtx.createOscillator();
-            const gain2 = audioCtx.createGain();
-            osc2.type = 'sine';
-            osc2.frequency.value = freq + 1.5; 
-
-            osc1.connect(gain1);
-            osc2.connect(gain2);
-            gain1.connect(audioCtx.destination);
-            gain2.connect(audioCtx.destination);
-            
             const now = audioCtx.currentTime;
+            masterGain.gain.setTargetAtTime(1.0, now, 0.5);
             
-            // Sanftes Ein- und Ausblenden (Fade In/Out)
-            gain1.gain.setValueAtTime(0, now);
-            gain1.gain.linearRampToValueAtTime(0.4, now + 1.5);
-            gain1.gain.exponentialRampToValueAtTime(0.01, now + 10);
-            
-            gain2.gain.setValueAtTime(0, now);
-            gain2.gain.linearRampToValueAtTime(0.3, now + 1.5);
-            gain2.gain.exponentialRampToValueAtTime(0.01, now + 10);
-            
-            osc1.start(now); osc2.start(now);
-            osc1.stop(now + 10); osc2.stop(now + 10);
+            // Obertöne für die gläserne Schwebung (Beating-Effekt)
+            const partials = [
+                { mult: 1.0, gain: 1.0, detune: -0.6 },
+                { mult: 1.0, gain: 0.9, detune: 0.8 },
+                { mult: 2.76, gain: 0.22, detune: 0 }
+            ];
+
+            partials.forEach(p => {
+                const osc = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq * p.mult, now);
+                osc.detune.setValueAtTime(p.detune, now);
+                
+                // Sanfter, langer Anschlag und langsames Verhallen
+                g.gain.setValueAtTime(0.0001, now);
+                g.gain.linearRampToValueAtTime(0.25 * p.gain, now + 0.8);
+                g.gain.exponentialRampToValueAtTime(0.0001, now + 8.0);
+                
+                osc.connect(g);
+                g.connect(masterGain);
+                
+                osc.start(now);
+                osc.stop(now + 8.5);
+            });
         }
 
         // --- SPRACHEN DATENBANK ---
@@ -298,16 +309,12 @@
 
         const uiText = {
             de: {
-                title: "Lex Causae",
-                subtitle: "Wähle eine Sphäre, um die kosmische Ordnung freizulegen.",
-                tabs: ["1. Axiom", "2. Biologie", "3. Kodex", "4. Praxis"],
-                bowl: "Klangschale resoniert..."
+                title: "Lex Causae", subtitle: "Wähle eine Sphäre, um die kosmische Ordnung freizulegen.",
+                tabs: ["1. Axiom", "2. Biologie", "3. Kodex", "4. Praxis"], bowl: "Klangschale resoniert..."
             },
             es: {
-                title: "Lex Causae",
-                subtitle: "Elige una esfera para revelar el orden cósmico.",
-                tabs: ["1. Axioma", "2. Biología", "3. Códice", "4. Práctica"],
-                bowl: "El cuenco tibetano resuena..."
+                title: "Lex Causae", subtitle: "Elige una esfera para revelar el orden cósmico.",
+                tabs: ["1. Axioma", "2. Biología", "3. Códice", "4. Práctica"], bowl: "El cuenco tibetano resuena..."
             }
         };
 
@@ -454,10 +461,7 @@
             for(let i=1; i<=4; i++) {
                 document.getElementById(`tab-btn-${i}`).innerText = uiText[lang].tabs[i-1];
             }
-            
             renderSpheres();
-            
-            // Falls das Modal gerade offen ist, Texte aktualisieren
             if (document.getElementById("modal").classList.contains("active")) {
                 populateModal(currentSphereIndex);
             }
@@ -477,12 +481,10 @@
             populateModal(index);
             switchTab(1);
             document.getElementById("modal").classList.add("active");
-            playSingingBowl(index); // SOUND ABSPIELEN
+            playSingingBowl(index);
         }
 
-        function closeModal() {
-            document.getElementById("modal").classList.remove("active");
-        }
+        function closeModal() { document.getElementById("modal").classList.remove("active"); }
 
         function switchTab(tabNum) {
             for(let i=1; i<=4; i++) {
@@ -493,8 +495,54 @@
             document.getElementById(`tab-btn-${tabNum}`).classList.add("active");
         }
 
-        // Initialer Aufruf
+        // --- NEU: Deep Space Animation (Canvas) ---
+        const cv = document.getElementById('sky'), cx = cv.getContext('2d');
+        let W, H, stars = [], shoots = [], nextShoot = 2000;
+        const tints = ['255,255,255', '255,240,200', '200,225,255'];
+
+        function initSky() {
+            W = cv.width = innerWidth; H = cv.height = innerHeight;
+            stars = Array.from({length: Math.round(W * H / 4500)}, () => ({
+                x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.3 + 0.2,
+                p: Math.random() * 6.28, s: Math.random() * 1.6 + 0.4,
+                c: tints[Math.floor(Math.random() * tints.length)]
+            }));
+        }
+
+        function spawnShoot() {
+            const a = (Math.random() * 0.5 + 0.3), dir = Math.random() < 0.5 ? 1 : -1;
+            shoots.push({
+                x: Math.random() * W * (dir > 0 ? 0.7 : 1), y: Math.random() * H * 0.4,
+                vx: Math.cos(a) * dir * (10 + Math.random() * 6), vy: Math.sin(a) * (10 + Math.random() * 6),
+                life: 0, max: 40 + Math.random() * 25
+            });
+        }
+
+        function frameSky(t) {
+            cx.clearRect(0, 0, W, H);
+            for (const s of stars) {
+                const k = 0.5 + 0.5 * Math.sin(t / 1000 * s.s + s.p);
+                cx.fillStyle = `rgba(${s.c},${0.2 + 0.8 * k})`;
+                cx.beginPath(); cx.arc(s.x, s.y, s.r * (0.8 + 0.3 * k), 0, 6.283); cx.fill();
+            }
+            if (t > nextShoot) { spawnShoot(); nextShoot = t + 3000 + Math.random() * 5000; }
+            shoots = shoots.filter(s => s.life < s.max);
+            for (const s of shoots) {
+                s.x += s.vx; s.y += s.vy; s.life++;
+                const f = 1 - s.life / s.max, tx = s.x - s.vx * 6, ty = s.y - s.vy * 6;
+                const g = cx.createLinearGradient(s.x, s.y, tx, ty);
+                g.addColorStop(0, `rgba(255,255,255,${f})`); g.addColorStop(1, 'rgba(180,200,255,0)');
+                cx.strokeStyle = g; cx.lineWidth = 1.5; cx.lineCap = 'round';
+                cx.beginPath(); cx.moveTo(s.x, s.y); cx.lineTo(tx, ty); cx.stroke();
+            }
+            requestAnimationFrame(frameSky);
+        }
+
+        // Initialer Start
         setLanguage('de');
+        initSky();
+        addEventListener('resize', initSky);
+        requestAnimationFrame(frameSky);
     </script>
 </body>
 </html>
