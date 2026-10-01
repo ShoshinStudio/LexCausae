@@ -471,4 +471,89 @@
                 },
                 es: {
                     title: "VII. Generación y Confianza",
-                    t1: "La creació
+                    t1: "La creación requiere la fusión de dos polos (estructura y dinámica, orden y caos).",
+                    t2: "El sistema parasimpático nutre la voluntad; la fuerza creativa surge cuando el miedo a la supervivencia desaparece.",
+                    t3: "Protejo mi fuerza, actúo con integridad y generosidad, y dejo que mi obra hable por sí misma.",
+                    t4: "Construcción de sistemas duraderos: Creación de patrimonio, documentos legados, transmisión de conocimientos para la posteridad."
+                }
+            }
+        ];
+
+        // --- DOM-Interaktion ---
+        function renderSpheres() {
+            const container = document.getElementById("spheres-container");
+            container.innerHTML = "";
+            spheresData.forEach((sphere, i) => {
+                const div = document.createElement("div");
+                div.className = "sphere";
+                div.onclick = () => openModal(i);
+                div.innerHTML = `
+                    <div class="planet p${i+1}"></div>
+                    <div class="sphere-title">${sphere[currentLang].title}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById("btn-de").classList.toggle("active", lang === 'de');
+            document.getElementById("btn-es").classList.toggle("active", lang === 'es');
+            
+            document.getElementById("main-title").innerText = uiText[lang].title;
+            document.getElementById("main-subtitle").innerText = uiText[lang].subtitle;
+            document.getElementById("bowl-text").innerText = uiText[lang].bowl;
+            
+            for(let i=1; i<=4; i++) {
+                document.getElementById(`tab-btn-${i}`).innerText = uiText[lang].tabs[i-1];
+            }
+            
+            renderSpheres();
+            
+            if (document.getElementById("modal").classList.contains("active")) {
+                populateModal(currentSphereIndex);
+            }
+        }
+
+        function populateModal(index) {
+            const data = spheresData[index][currentLang];
+            document.getElementById("modal-title").innerText = data.title;
+            document.getElementById("tab-1").innerText = data.t1;
+            document.getElementById("tab-2").innerText = data.t2;
+            document.getElementById("tab-3").innerText = data.t3;
+            document.getElementById("tab-4").innerText = data.t4;
+        }
+
+        function openModal(index) {
+            currentSphereIndex = index;
+            populateModal(index);
+            switchTab(1);
+            document.getElementById("modal").classList.add("active");
+            playSingingBowl(index);
+        }
+
+        function closeModal() {
+            document.getElementById("modal").classList.remove("active");
+        }
+
+        function switchTab(tabNum) {
+            for(let i=1; i<=4; i++) {
+                document.getElementById("tab-"+i).classList.remove("active");
+                document.getElementById(`tab-btn-${i}`).classList.remove("active");
+            }
+            document.getElementById("tab-"+tabNum).classList.add("active");
+            document.getElementById(`tab-btn-${tabNum}`).classList.add("active");
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById("modal");
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+
+        // Start initialisieren
+        setLanguage('de');
+    </script>
+</body>
+</html>
