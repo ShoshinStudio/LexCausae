@@ -1,559 +1,554 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lex Causae - Die 7 Sphären</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
-
-        :root {
-            --bg-color: #07090f;
-            --gold: #d4af37;
-            --gold-dim: #8c6a28;
-            --text-main: #e2dcd3;
-            --text-dim: #9da7b3;
-            --modal-bg: #11141c;
-            --accent-glow: rgba(212, 175, 55, 0.25);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'EB Garamond', serif;
-            overflow-x: hidden;
-            background-image: radial-gradient(circle at 50% 40%, #141829 0%, #07090f 100%);
-            min-height: 100vh;
-        }
-
-        h1, h2, h3, .tab-btn, .lang-btn, .action-btn {
-            font-family: 'Cinzel', serif;
-        }
-
-        /* Sprachwechsler */
-        .top-nav {
-            position: absolute;
-            top: 20px;
-            right: 25px;
-            display: flex;
-            gap: 8px;
-            z-index: 10;
-        }
-
-        .lang-btn {
-            background: rgba(17, 20, 28, 0.8);
-            border: 1px solid var(--gold-dim);
-            color: var(--gold-dim);
-            padding: 6px 12px;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-        }
-
-        .lang-btn.active, .lang-btn:hover {
-            background: var(--gold);
-            color: #07090f;
-            font-weight: 700;
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
-
-        /* Header */
-        header {
-            text-align: center;
-            padding: 70px 20px 20px;
-        }
-
-        header h1 {
-            font-size: clamp(2.4rem, 6vw, 3.8rem);
-            color: var(--gold);
-            letter-spacing: 8px;
-            margin: 0 0 10px 0;
-            text-transform: uppercase;
-            text-shadow: 0 0 25px rgba(212, 175, 55, 0.3);
-        }
-
-        header p {
-            font-size: clamp(1rem, 2.5vw, 1.3rem);
-            color: var(--text-dim);
-            letter-spacing: 2px;
-            font-style: italic;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Planeten-System */
-        .system-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 45px;
-            max-width: 1100px;
-            margin: 40px auto 70px;
-            padding: 20px;
-        }
-
-        .sphere {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.4s ease;
-            width: 130px;
-        }
-
-        .sphere:hover {
-            transform: translateY(-8px) scale(1.08);
-            filter: drop-shadow(0 0 25px var(--accent-glow));
-        }
-
-        .planet {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            margin-bottom: 14px;
-            box-shadow: inset -18px -18px 40px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 255, 255, 0.08);
-            position: relative;
-        }
-
-        /* Planeten-Farben */
-        .p1 { background: radial-gradient(circle at 35% 35%, #5580bd, #172436); }
-        .p2 { background: radial-gradient(circle at 35% 35%, #5ea484, #132b1f); }
-        .p3 { background: radial-gradient(circle at 35% 35%, #c87a4a, #4a1e0b); }
-        .p4 { background: radial-gradient(circle at 35% 35%, #b14850, #360c10); }
-        .p5 { background: radial-gradient(circle at 35% 35%, #d8b87e, #49391d); }
-        .p6 { background: radial-gradient(circle at 35% 35%, #8e4c82, #290e24); }
-        .p7 { background: radial-gradient(circle at 35% 35%, #e0ce60, #4a410b); }
-
-        .sphere-title {
-            font-family: 'Cinzel', serif;
-            font-size: 0.95rem;
-            color: var(--text-main);
-            letter-spacing: 1.5px;
-            text-align: center;
-            line-height: 1.3;
-        }
-
-        /* Modal Overlay */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(5, 7, 12, 0.88);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            padding: 15px;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal-content {
-            background: var(--modal-bg);
-            border: 1px solid var(--gold-dim);
-            max-width: 720px;
-            width: 100%;
-            border-radius: 6px;
-            padding: 40px 30px;
-            position: relative;
-            box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), inset 0 0 25px rgba(212, 175, 55, 0.08);
-            text-align: center;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 2rem;
-            color: var(--gold-dim);
-            cursor: pointer;
-            transition: color 0.3s;
-            line-height: 1;
-        }
-
-        .close-btn:hover {
-            color: var(--gold);
-        }
-
-        #modal-title {
-            color: var(--gold);
-            font-size: clamp(1.6rem, 4vw, 2.2rem);
-            margin: 0 0 25px 0;
-            letter-spacing: 3px;
-            border-bottom: 1px solid rgba(140, 106, 40, 0.35);
-            padding-bottom: 15px;
-        }
-
-        /* 4-Ebenen Tabs */
-        .tabs {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            background: transparent;
-            border: 1px solid var(--gold-dim);
-            color: var(--text-dim);
-            padding: 8px 14px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            border-radius: 3px;
-            transition: all 0.3s ease;
-        }
-
-        .tab-btn.active, .tab-btn:hover {
-            background: var(--gold-dim);
-            color: #07090f;
-            font-weight: 700;
-        }
-
-        .tab-content {
-            display: none;
-            font-size: clamp(1.1rem, 2.8vw, 1.35rem);
-            line-height: 1.7;
-            padding: 10px 15px;
-            color: var(--text-main);
-            animation: fadeIn 0.4s ease;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .bowl-indicator {
-            font-size: 0.85rem;
-            color: var(--gold-dim);
-            margin-top: 25px;
-            font-style: italic;
-            opacity: 0.8;
-            letter-spacing: 1px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Lex Causae — Septem Leges Universales</title>
+<style>
+:root{--bg-deep:#020308;--gold-glow:#e8c987;--gold-accent:#ffd992;--text-main:#f0eef8;--text-sub:#a4a0c0;--hud-glass:rgba(8,12,28,.72);--border-glass:rgba(232,201,135,.28)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+html,body{width:100%;height:100%;background-color:var(--bg-deep);color:var(--text-main);font-family:-apple-system,BlinkMacSystemFont,"Cinzel","Times New Roman","Baskerville",Georgia,serif;overflow-x:hidden;user-select:none}
+canvas#deepSpaceCanvas{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none}
+.jwst-haze{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(circle at 50% 50%,rgba(20,26,60,.15) 0%,rgba(3,4,10,.75) 85%);mix-blend-mode:screen}
+.hud-btn{position:fixed;top:22px;z-index:20;background:var(--hud-glass);border:1px solid var(--border-glass);color:var(--gold-glow);padding:9px 18px;border-radius:999px;font-family:inherit;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;gap:9px;transition:all .35s cubic-bezier(.16,1,.3,1);box-shadow:0 4px 20px rgba(0,0,0,.6),0 0 15px rgba(232,201,135,.15)}
+.hud-btn:hover{background:rgba(232,201,135,.15);border-color:var(--gold-glow);transform:translateY(-2px);box-shadow:0 6px 25px rgba(232,201,135,.35)}
+.hud-btn:active{transform:translateY(0)}
+#langSwitch{left:22px}
+#soundToggle{right:22px}
+main{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:85px 16px 60px}
+header{text-align:center;max-width:720px;pointer-events:none}
+h1{font-weight:300;font-size:clamp(1.8rem,5.2vw,3.2rem);letter-spacing:.12em;text-transform:uppercase;color:var(--gold-accent);text-shadow:0 0 25px rgba(232,201,135,.4),0 0 70px rgba(232,201,135,.15);margin-bottom:6px}
+.subtitle{color:var(--text-sub);font-size:clamp(.85rem,2.2vw,1.05rem);font-style:italic;letter-spacing:.05em}
+.cosmic-stage{position:relative;width:min(94vw,76vh,680px);aspect-ratio:1;margin-top:30px;display:flex;align-items:center;justify-content:center;transition:opacity .6s ease}
+.central-sun{position:absolute;width:9.5%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#fff 0%,#fffbe6 30%,#ffd480 65%,transparent 100%);box-shadow:0 0 30px rgba(255,255,255,.9),0 0 65px rgba(255,215,120,.65),0 0 130px rgba(232,201,135,.35);pointer-events:none;animation:sunRadiance 7s ease-in-out infinite alternate}
+@keyframes sunRadiance{0%{transform:scale(.96);filter:brightness(1)}100%{transform:scale(1.08);filter:brightness(1.25)}}
+.orbital-path{position:absolute;border-radius:50%;border:1px dashed rgba(232,201,135,.08);pointer-events:none;transform:translate(-50%,-50%);left:50%;top:50%}
+.planet-node{position:absolute;width:14.8%;aspect-ratio:1;transform:translate(-50%,-50%);border:none;border-radius:50%;background:transparent;cursor:pointer;outline:none;transition:transform .4s cubic-bezier(.16,1,.3,1),filter .4s ease,opacity .5s ease;z-index:10}
+.planet-node:hover{transform:translate(-50%,-50%) scale(1.22);filter:brightness(1.2);z-index:15}
+.planet-node:focus-visible{outline:2px solid var(--gold-accent);outline-offset:7px}
+.planet-sphere{position:relative;width:100%;height:100%;border-radius:50%;overflow:visible}
+.planet-body{position:absolute;inset:0;border-radius:50%;overflow:hidden;box-shadow:0 0 20px rgba(0,0,0,.9)}
+.tex-1{background:radial-gradient(ellipse at 70% 30%,rgba(200,235,255,.4),transparent 60%),repeating-linear-gradient(25deg,#1b387a 0px,#2752b0 9px,#182f69 18px,#366cd9 27px,#102047 36px);filter:contrast(1.15) saturate(1.25)}
+.tex-2{background:radial-gradient(circle at 40% 40%,rgba(180,255,220,.5),transparent 70%),radial-gradient(ellipse at 80% 20%,rgba(255,255,255,.6) 0%,transparent 40%),repeating-radial-gradient(ellipse at 20% 70%,#0d5c48 0px,#179675 14px,#083b2e 28px,#2ee0af 38px)}
+.tex-3{background:radial-gradient(circle at 65% 65%,#c0392b 0%,rgba(192,57,43,.8) 18%,transparent 35%),repeating-linear-gradient(12deg,#6e320f 0px,#c77b38 8px,#3d1a06 16px,#eb9d59 26px,#8c4217 34px)}
+.tex-4{background:radial-gradient(circle at 50% 95%,#fff 0%,#fff 12%,transparent 20%),radial-gradient(circle at 20% 30%,rgba(0,0,0,.5) 0%,transparent 40%),linear-gradient(135deg,#a63a24 0%,#bf4d32 40%,#591b0f 75%,#3d1108 100%)}
+.tex-5{background:repeating-linear-gradient(0deg,#d4be8a 0px,#a8915b 6px,#e8d8a7 14px,#826e41 22px)}
+.tex-6{background:radial-gradient(circle at 30% 60%,rgba(255,100,180,.6),transparent 50%),repeating-linear-gradient(45deg,#3d0725 0px,#80104e 10px,#200213 20px,#d1217e 32px)}
+.tex-7{background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.7),transparent 60%),repeating-radial-gradient(circle at 30% 30%,#997300 0px,#e6b800 12px,#4d3a00 24px,#ffd700 36px)}
+.planet-shading{position:absolute;inset:0;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.4) 0%,rgba(255,255,255,.05) 30%,rgba(0,0,0,.7) 65%,#000 100%);box-shadow:inset 2px 2px 5px rgba(255,255,255,.5),inset -5px -5px 12px rgba(0,0,0,.95),0 0 18px var(--atmosphere-color)}
+.saturn-rings{position:absolute;left:50%;top:50%;width:260%;height:65%;transform:translate(-50%,-50%) rotate(-28deg);border-radius:50%;pointer-events:none;background:radial-gradient(ellipse at center,transparent 0%,transparent 46%,rgba(180,155,110,.75) 48%,rgba(220,195,145,.85) 54%,rgba(30,24,15,.3) 55%,rgba(200,175,125,.8) 60%,rgba(140,115,75,.5) 67%,transparent 70%);box-shadow:0 0 12px rgba(210,185,135,.25)}
+.planet-node .planet-label{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:10px;white-space:nowrap;font-size:clamp(.68rem,2.1vw,.86rem);letter-spacing:.08em;color:var(--text-main);text-shadow:0 2px 8px #000,0 0 12px #000;pointer-events:none;transition:color .3s ease}
+.planet-node:hover .planet-label{color:var(--gold-accent)}
+.cosmic-stage.dimmed .planet-node{opacity:.12;pointer-events:none}
+.readout-panel{position:fixed;inset:0;z-index:50;display:none;overflow-y:auto;background:rgba(3,4,10,.86);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:40px 20px;cursor:pointer;user-select:text}
+.readout-panel.active{display:flex;align-items:center;justify-content:center;animation:panelZoomIn .48s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes panelZoomIn{from{opacity:0;transform:scale(.65)}to{opacity:1;transform:scale(1)}}
+.readout-card{max-width:620px;width:100%;margin:auto;background:rgba(11,15,34,.78);border:1px solid rgba(232,201,135,.32);border-radius:20px;padding:42px 34px;text-align:center;cursor:default;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.85),0 0 45px rgba(var(--active-rgb),.22)}
+.card-planet-hero{width:90px;aspect-ratio:1;border-radius:50%;margin:0 auto 24px;position:relative;box-shadow:0 0 35px rgba(var(--active-rgb),.55)}
+.readout-card h2{font-weight:300;font-size:1.15rem;letter-spacing:.15em;text-transform:uppercase;color:var(--active-color);margin-bottom:12px}
+.readout-card .main-headline{font-size:clamp(1.35rem,4.8vw,1.95rem);line-height:1.35;font-weight:400;color:#fff;margin-bottom:26px;text-shadow:0 2px 10px rgba(0,0,0,.8)}
+.readout-card p{line-height:1.8;font-size:1.05rem;text-align:left;color:#dfdbe8;margin-bottom:18px}
+.readout-card h3{font-weight:400;font-style:italic;font-size:1.05rem;color:var(--gold-accent);margin:28px 0 10px;text-align:left;letter-spacing:.05em}
+.laws-block p{border-left:2px solid var(--active-color);padding-left:16px;margin-bottom:14px;color:#fff}
+.level-indicator{display:flex;justify-content:center;gap:8px;margin:32px 0 16px}
+.level-indicator .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.2);transition:all .3s ease}
+.level-indicator .dot.active{background:var(--active-color);box-shadow:0 0 10px var(--active-color);transform:scale(1.2)}
+.panel-buttons{display:flex;gap:16px;justify-content:center}
+.panel-btn{font-family:inherit;font-size:.95rem;letter-spacing:.06em;padding:11px 28px;border-radius:999px;border:1px solid var(--active-color);background:transparent;color:var(--text-main);cursor:pointer;transition:all .25s ease}
+.panel-btn:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
+.panel-btn.accent{background:var(--active-color);color:#030408;font-weight:600;box-shadow:0 4px 18px rgba(var(--active-rgb),.35)}
+.panel-btn.accent:hover{filter:brightness(1.2)}
+@media(max-width:600px){.readout-card{padding:30px 20px}.hud-btn{padding:8px 14px;font-size:.76rem}}
+</style>
 </head>
 <body>
 
-    <div class="top-nav">
-        <button class="lang-btn active" onclick="setLanguage('de')" id="btn-de">DE</button>
-        <button class="lang-btn" onclick="setLanguage('es')" id="btn-es">ES</button>
+<button class="hud-btn" id="langSwitch" aria-label="Sprache wählen"><span>🌐</span><span id="langDisplay">DE</span></button>
+<button class="hud-btn" id="soundToggle" aria-label="Kristall-Klangraum aktivieren"><span>🔔</span><span id="soundDisplay">Klangraum</span></button>
+
+<div class="jwst-haze"></div>
+<canvas id="deepSpaceCanvas"></canvas>
+
+<main>
+  <header>
+    <h1 id="titleHeader">Lex Causae</h1>
+    <p class="subtitle" id="subHeader">Wähle eine Sphäre, um die kosmische Ordnung freizulegen.</p>
+  </header>
+  <div class="cosmic-stage" id="cosmicStage"><div class="central-sun"></div></div>
+</main>
+
+<div class="readout-panel" id="readoutPanel" role="dialog" aria-modal="true">
+  <div class="readout-card" id="readoutCard"></div>
+</div>
+
+<script>
+const MANIFEST = {
+  DE: {
+    title:"Lex Causae", sub:"Wähle eine Sphäre, um die kosmische Ordnung freizulegen.",
+    soundOff:"Klangraum", soundOn:"Klang Aktiv", backBtn:"Zurück", fathomBtn:"Ergründen", deepBtn:"Vertiefen",
+    principleHeading:"Das Wirkprinzip", actHeading:"Die Tat",
+    coreHeading:"Der hermetische Kern", practiceHeading:"Übung", pitfallHeading:"Häufigster Fehler",
+    principles:[
+      {name:"Mentalismus",
+       headline:"Deine Gedanken sind keine Träume. Sie sind der Bauplan deiner Realität.",
+       laws:["Alles Materielle existiert zuerst im Geist.","Wer sein Denken nicht beherrscht, lebt nach fremden Vorgaben."],
+       mechanic:"Alles Materielle existiert zuerst als Struktur im Geist. Was du ununterbrochen denkst, wird zur Haltung. Die Haltung erzwingt die Handlung; die Handlung baut unerbittlich dein Schicksal.",
+       command:"Richte deinen Fokus kompromisslos auf Lösungen. Lass keinen Gedanken zu, den du nicht als greifbare Realität im Universum manifestieren willst.",
+       deep:{core:"Das erste hermetische Prinzip lautet: Das All ist Geist. Praktisch heißt das: Nicht das Ereignis entscheidet über deine Reaktion, sondern deine Deutung davon.",practice:"Schreibe morgens ein einziges Ziel des Tages auf und lies es abends gegen: Was davon wurde Tat?",pitfall:"Denken mit Wünschen verwechseln. Ohne Handlung bleibt der Gedanke nur Kulisse."}},
+      {name:"Wahrheit & Klarheit",
+       headline:"Die Lüge macht dich hässlich und zersetzt deinen Verstand von innen.",
+       laws:["Ich lüge und heuchle niemals.","Wahrheit tilgt Angst und Zweifel augenblicklich aus dem System."],
+       mechanic:"Wer lügt, erzeugt permanenten mentalen Reibungsverlust. Er muss künstliche Fassaden pflegen, fürchtet Entdeckung und zerschneidet seine Verbindung zur objektiven Wirklichkeit.",
+       command:"Sprich radikal die Wahrheit. Sie vernichtet jede innere Unsicherheit und macht dein Wort zu einem unumstößlichen Gesetz.",
+       deep:{core:"Klarheit beginnt bei dir selbst: Selbstbetrug ist die erste und folgenreichste Lüge, weil jede spätere Entscheidung auf ihr aufbaut.",practice:"Schreibe abends drei Sätze, die mit „Heute habe ich mir vorgemacht, dass …“ beginnen.",pitfall:"Radikale Wahrheit mit Brutalität verwechseln. Wahrheit sagt, was ist; sie muss niemanden verletzen."}},
+      {name:"Schwingung & Tat",
+       headline:"Stillstand existiert nicht. Wer rastet, verfällt der Entropie.",
+       laws:["Alles im Kosmos schwingt; Trägheit ist schleichender Zerfall.","Ohne geordneten Willen siegt das Chaos über jede Substanz."],
+       mechanic:"Der physikalische Standardzustand des Universums ist Entropie. Nur durch geordnete, tägliche Energiezufuhr bleiben Geist, Körper und Schaffen unbesiegbar stabil.",
+       command:"Nicht zerdenken, sondern sofort handeln. Wandle aufgestaute Lebenskraft ohne Umwege in Disziplin, Körperkraft und handfeste Resultate um.",
+       deep:{core:"Handlung erzeugt Klarheit, nicht umgekehrt: Wer anfängt, bekommt Rückmeldung und kann korrigieren.",practice:"Verkleinere das nächste aufgeschobene Vorhaben auf einen ersten Schritt unter zwei Minuten und führe ihn sofort aus.",pitfall:"Dauerhaft Vollgas. Bewegung braucht Erholung, sonst kippt sie in Erschöpfung."}},
+      {name:"Polarität",
+       headline:"Widerstand ist kein Unglück, sondern das Material deines Willens.",
+       laws:["Hindernis und Meisterschaft sind zwei Enden derselben Stange.","Schwäche wird durch Härte überwunden, niemals durch Klagen."],
+       mechanic:"Jeder Zustand birgt seinen Gegenpol in sich. Du bezwingst ein Hindernis nicht, indem du darauf starrst, sondern indem du deinen Schwerpunkt aktiv auf die entgegengesetzte Tugend verschiebst.",
+       command:"Verschiebe deinen Fokus aktiv: Aus dem Widerstand wird Trainingsgewicht, aus Schmerz wird unerschütterliche Standhaftigkeit.",
+       deep:{core:"Gegenpole bilden eine Skala, kein Entweder-oder. Verschieben heißt, dich bewusst Richtung des gewünschten Endes zu bewegen.",practice:"Formuliere eine Sorge als Gegenteil („Ich scheitere“ → „Was tue ich, wenn es gelingt?“) und notiere die erste Handlung daraus.",pitfall:"Härte ohne Maß. Kälte und schweres Training steigerst du schrittweise, sonst schadest du dir."}},
+      {name:"Rhythmus & Balance",
+       headline:"Wer sich vom Pendel mitreißen lässt, wird von ihm zerschmettert.",
+       laws:["Alles hat Gezeiten: Ebbe und Flut, Aufstieg und Fall.","Wer im Hochmut triumphiert, bricht in der Krise zusammen."],
+       mechanic:"Auf Triumphe folgen Krisen. Wer sich von den Ausschlägen der äußeren Welt emotional knechten lässt, verliert die Herrschaft über seinen eigenen Verstand.",
+       command:"Bleibe im absoluten Zentrum. Behalte die volle Kontrolle über deinen Geist und flüchte in keine emotionale Betäubung.",
+       deep:{core:"Wer den Takt kennt, muss nicht jede Schwingung mitmachen. Das Pendel ist unvermeidlich, deine Reaktion darauf nicht.",practice:"Notiere eine Woche lang dreimal täglich deine Energie von 1 bis 10 und lege die schwerste Arbeit auf deine wiederkehrenden Hochs.",pitfall:"Ein Tief als Versagen deuten, statt als Phase."}},
+      {name:"Kausalität",
+       headline:"Hör auf, die Wirkung zu sein. Werde zur Ursache.",
+       laws:["Zufall ist nur der Deckname für unerkannte Gesetze.","Jede Tat und jedes Zögern rechnet unbestechlich ab."],
+       mechanic:"Das Universum ist ein mathematisch präzises Kausalitäts-Räderwerk. Nichts geschieht grundlos. Du bist kein Zufallsopfer der Gegebenheiten, sondern der Initiator des ersten Impulses.",
+       command:"Nimm niemals die Opferrolle ein. Setze jeden Tag bewusst und kaltblütig die Ursachen, deren Ernte du einfahren willst.",
+       deep:{core:"„Ich bin die Ursache“ bedeutet Verantwortung für die eigene Reaktion, nicht Schuld an allem, was dir widerfährt.",practice:"Schreibe bei einem Problem drei Einflussgrößen auf, die bei dir liegen, und ändere heute eine davon.",pitfall:"Selbstbeschuldigung für Dinge, die du nicht kontrollieren konntest."}},
+      {name:"Generierung & Vertrauen",
+       headline:"Harter Wille ohne Vertrauen verbrennt. Vertrauen ohne Tat verkümmert.",
+       laws:["Schöpfung verlangt zielgerichteten Willen und Hingabe zugleich.","Triff die Entscheidung klar, dann lass das Ganze wirken."],
+       mechanic:"Wahre Schöpferkraft entsteht aus zwei fundamentalen Polen: dem maskulinen Impuls der Entschlossenheit und dem femininen Vertrauen in die kosmische Reifung der Tat.",
+       command:"Entscheide klar und sofort, handle ohne Zögern – und vertraue darauf, dass das Gesetz der Ursache deinen Weg vollendet.",
+       deep:{core:"Generierung vereint Entscheiden (aktiv) und Zulassen (empfangend): erst klar planen, dann dem Prozess Zeit geben.",practice:"Wähle ein Werk, das dich überdauert (ein Dokument, ein Konto, ein Wissensstück), und reserviere dafür eine feste Zeit pro Woche.",pitfall:"Ständiges Nachkontrollieren, das den Prozess stört, oder völliges Loslassen ohne Handlung."}}
+    ]
+  },
+  EN: {
+    title:"Lex Causae", sub:"Choose a sphere to reveal the cosmic order.",
+    soundOff:"Soundscape", soundOn:"Sound Active", backBtn:"Back", fathomBtn:"Fathom", deepBtn:"Descend",
+    principleHeading:"The Operational Principle", actHeading:"The Command",
+    coreHeading:"The Hermetic Core", practiceHeading:"Practice", pitfallHeading:"Most Common Mistake",
+    principles:[
+      {name:"Mentalism",
+       headline:"Your thoughts are no mere dreams. They are the blueprint of your reality.",
+       laws:["All material form originates in the mind.","He who rules not his mind lives under the decree of others."],
+       mechanic:"All material form begins as structure within the mind. What you hold persistently in consciousness becomes posture; posture dictates action; action shapes destiny.",
+       command:"Direct your focus relentlessly toward solutions. Harbour no thought you would not see manifest as tangible reality in the universe.",
+       deep:{core:"The first Hermetic principle states: The All is Mind. In practice: it is not the event that decides your reaction, but your interpretation of it.",practice:"Each morning, write down one goal for the day and check it against the evening: how much of it became action?",pitfall:"Confusing thinking with wishing. Without action, the thought remains mere scenery."}},
+      {name:"Truth & Clarity",
+       headline:"The lie turns you ugly and rots your mind from within.",
+       laws:["Never lie, never feign.","Truth abolishes fear and doubt instantly from the system."],
+       mechanic:"Deceit generates relentless internal friction. It demands the maintenance of false illusions, breeds paranoia, and severs your bond with real existence.",
+       command:"Speak radical truth. It destroys all inner weakness and renders your word an unshakeable decree.",
+       deep:{core:"Clarity begins with yourself: self-deception is the first and most consequential lie, because every later decision builds on it.",practice:"In the evening, write three sentences beginning with “Today I told myself that…”.",pitfall:"Mistaking radical truth for brutality. Truth states what is; it need not wound anyone."}},
+      {name:"Vibration & Act",
+       headline:"Stagnation is an illusion. He who idles yields to entropy.",
+       laws:["All in the cosmos vibrates; inaction is gradual decay.","Without deliberate order, entropy claims every vessel."],
+       mechanic:"The default thermodynamic state of the universe is dissolution. Only consistent daily input of disciplined energy maintains body, intellect, and purpose.",
+       command:"Cease endless rumination and act immediately. Channel vitality strictly into discipline, strength, and genuine progress.",
+       deep:{core:"Action creates clarity, not the reverse: whoever begins gets feedback and can correct course.",practice:"Shrink your next postponed task to a first step under two minutes and do it immediately.",pitfall:"Running at full throttle forever. Movement needs recovery, or it tips into exhaustion."}},
+      {name:"Polarity",
+       headline:"Adversity is no misfortune; it is the raw fuel of your will.",
+       laws:["Obstacle and mastery are two poles of the very same axis.","Weakness is conquered through fortitude, never complaint."],
+       mechanic:"Every state harbors its opposite. You do not conquer an obstacle by staring at it, but by transmuting your focus toward its polar virtue.",
+       command:"Shift your axis deliberately: Opposition becomes the forge, hardship turns into unyielding resolve.",
+       deep:{core:"Opposites form a scale, not an either-or. Shifting means moving yourself deliberately toward the end you want.",practice:"Rephrase a worry as its opposite (“I will fail” → “What will I do when it works?”) and note the first action that follows.",pitfall:"Hardness without measure. Increase cold and heavy training gradually, or you harm yourself."}},
+      {name:"Rhythm & Balance",
+       headline:"He who rides the wild swing of the pendulum shall be crushed by it.",
+       laws:["All has tides: rise and fall, surge and ebb.","Hubris in triumph guarantees ruin in the trough."],
+       mechanic:"Crisis invariably follows acclaim. He who tethers his soul to external highs is shattered when the tide retreats.",
+       command:"Anchor firmly at the neutral center. Retain absolute dominion over your mind and flee into no numbing escape.",
+       deep:{core:"Whoever knows the beat need not swing with every oscillation. The pendulum is unavoidable; your reaction to it is not.",practice:"For one week, rate your energy from 1 to 10 three times a day and schedule your hardest work for your recurring peaks.",pitfall:"Reading a low as failure instead of a phase."}},
+      {name:"Causality",
+       headline:"Cease being the consequence. Become the primal Cause.",
+       laws:["Chance is but a veil for unrecognized law.","Every deed and hesitation settles its account without mercy."],
+       mechanic:"The universe operates with mathematical causal precision. You are never a helpless token on the board, but the prime mover of the pulse.",
+       command:"Never inhabit the posture of a victim. Set daily the precise causes whose harvest you intend to claim.",
+       deep:{core:"“I am the cause” means responsibility for your own reaction, not guilt for everything that happens to you.",practice:"For a problem, write down three factors that lie with you and change one of them today.",pitfall:"Blaming yourself for things you could not control."}},
+      {name:"Generation & Trust",
+       headline:"Fierce will without trust burns out. Trust without action withers.",
+       laws:["Creation requires both relentless intent and cosmic surrender.","Decide resolutely, then let the greater order fulfill its path."],
+       mechanic:"True generative power balances resolute execution with profound surrender to the underlying physics of life.",
+       command:"Decide swiftly and act without hesitation — while trusting completely that the universe orchestrates the ultimate trajectory.",
+       deep:{core:"Generation unites deciding (active) and allowing (receptive): plan clearly first, then give the process time.",practice:"Choose a work that will outlast you (a document, an account, a piece of knowledge) and reserve fixed weekly time for it.",pitfall:"Constant checking that disturbs the process, or letting go completely without action."}}
+    ]
+  },
+  ES: {
+    title:"Lex Causae", sub:"Selecciona una esfera para revelar el orden cósmico.",
+    soundOff:"Espacio Sonoro", soundOn:"Sonido Activo", backBtn:"Volver", fathomBtn:"Profundizar", deepBtn:"Descender",
+    principleHeading:"El Principio Operativo", actHeading:"El Mandato",
+    coreHeading:"El Núcleo Hermético", practiceHeading:"Ejercicio", pitfallHeading:"Error Más Frecuente",
+    principles:[
+      {name:"Mentalismo",
+       headline:"Tus pensamientos no son sueños: son el plano exacto de tu realidad.",
+       laws:["Toda materia nace primero en la mente.","Quien no gobierna su mente vive según los designios de otros."],
+       mechanic:"Todo lo físico existe primero como estructura mental. Lo que piensas con constancia se convierte en postura; la postura fuerza la acción y forja tu destino.",
+       command:"Enfoca tu mente radicalmente en soluciones. No toleres ningún pensamiento que no desees ver manifestado en la realidad.",
+       deep:{core:"El primer principio hermético dice: El Todo es Mente. En la práctica: no el suceso decide tu reacción, sino tu interpretación de él.",practice:"Escribe por la mañana una sola meta del día y contrástala por la noche: ¿qué parte se convirtió en acción?",pitfall:"Confundir pensar con desear. Sin acción, el pensamiento queda en simple decorado."}},
+      {name:"Verdad & Claridad",
+       headline:"La mentira te vuelve vil y pudre la mente por dentro.",
+       laws:["Jamás mientas ni adoptes máscaras.","La verdad erradica el miedo y la duda de inmediato."],
+       mechanic:"Mentir genera una fricción insoportable. Exige sostener falsas posturas, alimenta el temor y destruye el contacto con la realidad.",
+       command:"Pronuncia la verdad radical. Destruye toda inseguridad interna y transforma tu palabra en ley inquebrantable.",
+       deep:{core:"La claridad empieza contigo: el autoengaño es la primera y más grave mentira, porque toda decisión posterior se apoya en ella.",practice:"Escribe por la noche tres frases que empiecen con «Hoy me engañé pensando que…».",pitfall:"Confundir verdad radical con brutalidad. La verdad dice lo que es; no tiene que herir a nadie."}},
+      {name:"Vibración & Acción",
+       headline:"El reposo no existe. Quien se detiene sucumbe ante la entropía.",
+       laws:["Todo vibra en el cosmos; la inmovilidad es deterioro.","Sin aporte constante de energía, el caos triunfa."],
+       mechanic:"El orden natural del universo tiende al desgaste. Sólo la inyección diaria de energía disciplinada preserva el cuerpo, la mente y el carácter.",
+       command:"No te pierdas en cavilaciones; actúa de inmediato. Transforma tu fuerza en disciplina, cuerpo y avance firme.",
+       deep:{core:"La acción genera claridad, no al revés: quien empieza recibe respuesta y puede corregir.",practice:"Reduce tu próximo proyecto aplazado a un primer paso de menos de dos minutos y hazlo de inmediato.",pitfall:"Ir siempre a máxima marcha. El movimiento necesita descanso, o se convierte en agotamiento."}},
+      {name:"Polaridad",
+       headline:"La resistencia no es desgracia: es el forjador de tu voluntad.",
+       laws:["Obstáculo y fortaleza son los dos extremos de la misma vara.","La debilidad se vence con temple, nunca con quejas."],
+       mechanic:"Todo estado contiene su opuesto. Los problemas no se resuelven fijando la vista en ellos, sino desplazando la voluntad hacia el polo opuesto.",
+       command:"Mueve tu eje activamente: la oposición se convierte en peso de entrenamiento; el dolor en firmeza inquebrantable.",
+       deep:{core:"Los polos forman una escala, no un o lo uno o lo otro. Desplazarte significa moverte conscientemente hacia el extremo deseado.",practice:"Formula una preocupación como su opuesto («Voy a fracasar» → «¿Qué haré si sale bien?») y anota la primera acción que se deriva.",pitfall:"Dureza sin medida. Aumenta el frío y el entrenamiento duro de forma gradual, o te harás daño."}},
+      {name:"Ritmo & Balance",
+       headline:"Quien se deja arrastrar por el péndulo será despedazado por él.",
+       laws:["Todo tiene sus mareas: auge y caída, flujo y reflujo.","La soberbia en la cima asegura el abismo en el declive."],
+       mechanic:"El triunfo siempre precede a la prueba. Si tu estabilidad depende de los ciclos externos, pierdes el mando sobre tu vida.",
+       command:"Permanece en el centro absoluto. Mantén el dominio supremo de tu mente y jamás busques refugio en ninguna anestesia.",
+       deep:{core:"Quien conoce el compás no tiene que seguir cada oscilación. El péndulo es inevitable, tu reacción no.",practice:"Durante una semana anota tu energía de 1 a 10 tres veces al día y coloca el trabajo más duro en tus picos recurrentes.",pitfall:"Interpretar una bajada como un fracaso, en lugar de una fase."}},
+      {name:"Causalidad",
+       headline:"Deja de ser el efecto. Conviértete en la Causa.",
+       laws:["El azar es sólo el nombre de leyes aún no comprendidas.","Cada acto y cada titubeo rinde cuentas sin piedad."],
+       mechanic:"El universo opera con absoluta precisión de causa y efecto. Jamás eres víctima de las circunstancias, sino el emisor del pulso original.",
+       command:"No asumas nunca la condición de víctima. Siembra a diario las causas exactas cuya cosecha pretendes reclamar.",
+       deep:{core:"«Yo soy la causa» significa responsabilidad por tu propia reacción, no culpa de todo lo que te ocurre.",practice:"Ante un problema, anota tres factores que dependen de ti y cambia uno hoy mismo.",pitfall:"Culparte por cosas que no podías controlar."}},
+      {name:"Generación & Confianza",
+       headline:"La voluntad sin fe se calcina; la fe sin actos se marchita.",
+       laws:["La creación exige resolución implacable y entrega profunda a la vez.","Decide con nitidez y permite que el orden universal complete el camino."],
+       mechanic:"El verdadero poder creador nace de dos fuerzas: el impulso directo y la serenidad de confiar en las leyes del cosmos.",
+       command:"Decide con inmediatez, actúa sin vacilación — y confía en que el universo ordenará el desenlace.",
+       deep:{core:"La generación une decidir (activo) y permitir (receptivo): primero planificar con claridad, luego dar tiempo al proceso.",practice:"Elige una obra que te sobreviva (un documento, una cuenta, un saber) y reserva un tiempo fijo semanal para ella.",pitfall:"Controlar sin parar, lo que perturba el proceso, o soltar del todo sin actuar."}}
+    ]
+  }
+};
+
+const PLANET_ASSETS=[
+  {roman:"I",color:"#64a4ff",rgb:"100, 164, 255",atmo:"rgba(100, 164, 255, 0.45)",texClass:"tex-1",bowlFreq:432},
+  {roman:"II",color:"#46e0a8",rgb:"70, 224, 168",atmo:"rgba(70, 224, 168, 0.45)",texClass:"tex-2",bowlFreq:486},
+  {roman:"III",color:"#e88b3f",rgb:"232, 139, 63",atmo:"rgba(232, 139, 63, 0.45)",texClass:"tex-3",bowlFreq:540},
+  {roman:"IV",color:"#e74c3c",rgb:"231, 76, 60",atmo:"rgba(231, 76, 60, 0.45)",texClass:"tex-4",bowlFreq:576},
+  {roman:"V",color:"#c8a5ff",rgb:"200, 165, 255",atmo:"rgba(200, 165, 255, 0.45)",texClass:"tex-5",ring:true,bowlFreq:648},
+  {roman:"VI",color:"#ff4d88",rgb:"255, 77, 136",atmo:"rgba(255, 77, 136, 0.45)",texClass:"tex-6",bowlFreq:720},
+  {roman:"VII",color:"#ffd54f",rgb:"255, 213, 79",atmo:"rgba(255, 213, 79, 0.45)",texClass:"tex-7",bowlFreq:864}
+];
+
+let currentLang="DE";
+const availableLangs=["DE","EN","ES"];
+const clientLang=(navigator.language||"").slice(0,2).toUpperCase();
+if(availableLangs.includes(clientLang))currentLang=clientLang;
+
+const cosmicStage=document.getElementById("cosmicStage");
+const readoutPanel=document.getElementById("readoutPanel");
+const readoutCard=document.getElementById("readoutCard");
+const titleHeader=document.getElementById("titleHeader");
+const subHeader=document.getElementById("subHeader");
+const langDisplay=document.getElementById("langDisplay");
+const soundDisplay=document.getElementById("soundDisplay");
+
+let activePlanetIndex=null,currentDepthLevel=0,lastFocusedPlanet=null;
+
+let audioCtx=null,masterGain=null,isAudioActive=false,ambientInterval=null;
+
+function initAudioEngine(){
+  if(audioCtx)return;
+  const AC=window.AudioContext||window.webkitAudioContext;
+  audioCtx=new AC();
+  masterGain=audioCtx.createGain();
+  masterGain.gain.setValueAtTime(0,audioCtx.currentTime);
+  const highpass=audioCtx.createBiquadFilter();
+  highpass.type='highpass';
+  highpass.frequency.setValueAtTime(215,audioCtx.currentTime);
+  masterGain.connect(highpass);
+  highpass.connect(audioCtx.destination);
+}
+
+function playSingingBowlChime(freq=432,duration=8.5,intensity=0.24){
+  if(!audioCtx||!isAudioActive)return;
+  const now=audioCtx.currentTime;
+  const harmonics=[{ratio:1.0,amp:1.0,detune:-0.8},{ratio:1.0,amp:0.95,detune:0.7},{ratio:2.76,amp:0.22,detune:0},{ratio:5.40,amp:0.08,detune:0}];
+  harmonics.forEach(h=>{
+    const osc=audioCtx.createOscillator(),g=audioCtx.createGain();
+    osc.type='sine';
+    osc.frequency.setValueAtTime(freq*h.ratio,now);
+    osc.detune.setValueAtTime(h.detune,now);
+    g.gain.setValueAtTime(0.0001,now);
+    g.gain.linearRampToValueAtTime(intensity*h.amp,now+0.85);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+duration);
+    osc.connect(g);g.connect(masterGain);
+    osc.start(now);osc.stop(now+duration+0.1);
+  });
+}
+
+function startAmbientSoundBath(){
+  const notes=[432,540,648,432,576];
+  let ptr=0;
+  playSingingBowlChime(432,9.0,0.24);
+  ambientInterval=setInterval(()=>{
+    if(!isAudioActive)return;
+    playSingingBowlChime(notes[ptr%notes.length],9.5,0.2);
+    ptr++;
+  },6800);
+}
+
+function toggleAudio(){
+  initAudioEngine();
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  const t=MANIFEST[currentLang];
+  if(!isAudioActive){
+    masterGain.gain.setTargetAtTime(1.0,audioCtx.currentTime,1.2);
+    isAudioActive=true;
+    soundDisplay.textContent=t.soundOn;
+    startAmbientSoundBath();
+  }else{
+    masterGain.gain.setTargetAtTime(0,audioCtx.currentTime,1.5);
+    isAudioActive=false;
+    soundDisplay.textContent=t.soundOff;
+    if(ambientInterval)clearInterval(ambientInterval);
+  }
+}
+document.getElementById("soundToggle").onclick=toggleAudio;
+
+function setupStage(){
+  cosmicStage.querySelectorAll(".planet-node, .orbital-path").forEach(e=>e.remove());
+  const langData=MANIFEST[currentLang];
+  PLANET_ASSETS.forEach((p,idx)=>{
+    const angle=0.65+idx*1.05,distancePercent=14+idx*5.6;
+    const orbit=document.createElement("div");
+    orbit.className="orbital-path";
+    orbit.style.width=`${distancePercent*2}%`;
+    orbit.style.height=`${distancePercent*2}%`;
+    cosmicStage.appendChild(orbit);
+    const btn=document.createElement("button");
+    btn.className="planet-node";
+    btn.setAttribute("aria-label",langData.principles[idx].name);
+    btn.style.left=`${50+distancePercent*Math.cos(angle)}%`;
+    btn.style.top=`${50+distancePercent*Math.sin(angle)}%`;
+    btn.style.setProperty("--atmosphere-color",p.atmo);
+    const ringsHTML=p.ring?`<div class="saturn-rings"></div>`:"";
+    btn.innerHTML=`<div class="planet-sphere">${ringsHTML}<div class="planet-body ${p.texClass}"></div><div class="planet-shading"></div></div><div class="planet-label">${p.roman}. ${langData.principles[idx].name}</div>`;
+    btn.onclick=()=>{playSingingBowlChime(p.bowlFreq,7.5,0.28);openReadout(idx,btn)};
+    cosmicStage.appendChild(btn);
+  });
+}
+
+function updateHUDText(){
+  const t=MANIFEST[currentLang];
+  titleHeader.textContent=t.title;
+  subHeader.textContent=t.sub;
+  langDisplay.textContent=currentLang;
+  soundDisplay.textContent=isAudioActive?t.soundOn:t.soundOff;
+  document.title=`${t.title} — Septem Leges Universales`;
+}
+
+function switchLanguage(){
+  currentLang=availableLangs[(availableLangs.indexOf(currentLang)+1)%availableLangs.length];
+  updateHUDText();
+  setupStage();
+  if(activePlanetIndex!==null&&readoutPanel.classList.contains("active"))renderCardContent();
+}
+document.getElementById("langSwitch").onclick=switchLanguage;
+
+function renderCardContent(){
+  const p=PLANET_ASSETS[activePlanetIndex];
+  const item=MANIFEST[currentLang].principles[activePlanetIndex];
+  const t=MANIFEST[currentLang];
+  readoutCard.style.setProperty("--active-color",p.color);
+  readoutCard.style.setProperty("--active-rgb",p.rgb);
+
+  let body="";
+  const smallHead=`<div class="main-headline" style="font-size:clamp(1.2rem,4.2vw,1.65rem);margin-bottom:12px;">${item.headline}</div>`;
+  if(currentDepthLevel===3){
+    body=`<h2>${p.roman} · ${item.name}</h2>${smallHead}
+      <h3>${t.coreHeading}</h3><p>${item.deep.core}</p>
+      <h3>${t.practiceHeading}</h3><p>${item.deep.practice}</p>
+      <h3>${t.pitfallHeading}</h3><p>${item.deep.pitfall}</p>`;
+  }else if(currentDepthLevel===2){
+    body=`<h2>${p.roman} · ${item.name}</h2>${smallHead}
+      <h3>${t.principleHeading}</h3><p>${item.mechanic}</p>
+      <h3>${t.actHeading}</h3><p>${item.command}</p>`;
+  }else{
+    body=`<h2>${p.roman} · ${item.name}</h2><div class="main-headline">${item.headline}</div>
+      <div class="laws-block">${item.laws.map(l=>`<p>${l}</p>`).join("")}</div>`;
+  }
+
+  let nextBtn="";
+  if(currentDepthLevel===1)nextBtn=`<button class="panel-btn accent" id="cardNext">${t.fathomBtn}</button>`;
+  else if(currentDepthLevel===2)nextBtn=`<button class="panel-btn accent" id="cardNext">${t.deepBtn}</button>`;
+
+  readoutCard.innerHTML=`
+    <div class="card-planet-hero ${p.texClass}"><div class="planet-shading"></div></div>
+    ${body}
+    <div class="level-indicator">
+      <div class="dot ${currentDepthLevel>=1?'active':''}"></div>
+      <div class="dot ${currentDepthLevel>=2?'active':''}"></div>
+      <div class="dot ${currentDepthLevel>=3?'active':''}"></div>
     </div>
+    <div class="panel-buttons"><button class="panel-btn" id="cardBack">${t.backBtn}</button>${nextBtn}</div>`;
 
-    <header>
-        <h1 id="main-title">Lex Causae</h1>
-        <p id="main-subtitle">Wähle eine Sphäre, um die kosmische Ordnung freizulegen.</p>
-    </header>
+  document.getElementById("cardBack").onclick=stepBack;
+  const next=document.getElementById("cardNext");
+  if(next){
+    next.onclick=()=>{
+      playSingingBowlChime(p.bowlFreq*(currentDepthLevel===1?1.333:1.5),6.5,0.25);
+      currentDepthLevel++;
+      renderCardContent();
+      readoutPanel.scrollTop=0;
+    };
+  }
+}
 
-    <div class="system-container" id="spheres-container">
-        <!-- Rendered via JS -->
-    </div>
+function openReadout(idx,btn){
+  activePlanetIndex=idx;
+  currentDepthLevel=1;
+  lastFocusedPlanet=btn;
+  const rect=btn.getBoundingClientRect();
+  readoutPanel.style.transformOrigin=`${rect.left+rect.width/2}px ${rect.top+rect.height/2}px`;
+  renderCardContent();
+  readoutPanel.classList.add("active");
+  readoutPanel.scrollTop=0;
+  cosmicStage.classList.add("dimmed");
+  document.getElementById("cardBack").focus();
+}
 
-    <!-- Modal für 4 Ebenen -->
-    <div class="modal-overlay" id="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <h2 id="modal-title">Sphäre</h2>
-            
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab(1)" id="tab-btn-1">1. Axiom</button>
-                <button class="tab-btn" onclick="switchTab(2)" id="tab-btn-2">2. Biologie</button>
-                <button class="tab-btn" onclick="switchTab(3)" id="tab-btn-3">3. Kodex</button>
-                <button class="tab-btn" onclick="switchTab(4)" id="tab-btn-4">4. Praxis</button>
-            </div>
+function stepBack(){
+  if(currentDepthLevel>=2){
+    currentDepthLevel--;
+    renderCardContent();
+    readoutPanel.scrollTop=0;
+    return;
+  }
+  readoutPanel.classList.remove("active");
+  cosmicStage.classList.remove("dimmed");
+  currentDepthLevel=0;
+  if(lastFocusedPlanet)lastFocusedPlanet.focus();
+}
 
-            <div id="tab-1" class="tab-content active"></div>
-            <div id="tab-2" class="tab-content"></div>
-            <div id="tab-3" class="tab-content"></div>
-            <div id="tab-4" class="tab-content"></div>
-            
-            <div class="bowl-indicator" id="bowl-text">Klangschale resoniert...</div>
-        </div>
-    </div>
+readoutPanel.addEventListener("click",e=>{if(e.target===readoutPanel)stepBack()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&currentDepthLevel>0)stepBack()});
 
-    <script>
-        // --- Web Audio API: Klangschalen-Synthesizer ---
-        const bowlFreqs = [246.94, 440.00, 392.00, 349.23, 329.63, 293.66, 261.63]; 
-        let audioCtx;
+const canvas=document.getElementById("deepSpaceCanvas");
+const ctx=canvas.getContext("2d");
+let width,height,stars=[],galaxies=[],meteors=[],nebulae=[],nextMeteorTime=2000;
+const STAR_SPECTRA=["220, 235, 255","255, 255, 255","255, 248, 220","255, 214, 170","255, 175, 160"];
 
-        function playSingingBowl(index) {
-            try {
-                if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-                
-                const freq = bowlFreqs[index];
-                const osc1 = audioCtx.createOscillator();
-                const gain1 = audioCtx.createGain();
-                osc1.type = 'sine';
-                osc1.frequency.value = freq;
-                
-                const osc2 = audioCtx.createOscillator();
-                const gain2 = audioCtx.createGain();
-                osc2.type = 'sine';
-                osc2.frequency.value = freq + 1.5; // Schwebung für Klangschalen-Charakter
+function resizeCanvas(){
+  width=canvas.width=window.innerWidth;
+  height=canvas.height=window.innerHeight;
+  initDeepSpace();
+}
 
-                osc1.connect(gain1);
-                osc2.connect(gain2);
-                gain1.connect(audioCtx.destination);
-                gain2.connect(audioCtx.destination);
-                
-                const now = audioCtx.currentTime;
-                gain1.gain.setValueAtTime(0, now);
-                gain1.gain.linearRampToValueAtTime(0.35, now + 1.2);
-                gain1.gain.exponentialRampToValueAtTime(0.001, now + 8);
-                
-                gain2.gain.setValueAtTime(0, now);
-                gain2.gain.linearRampToValueAtTime(0.25, now + 1.2);
-                gain2.gain.exponentialRampToValueAtTime(0.001, now + 8);
-                
-                osc1.start(now);
-                osc2.start(now);
-                osc1.stop(now + 8.1);
-                osc2.stop(now + 8.1);
-            } catch (e) {
-                console.warn("Audio Context Init:", e);
-            }
-        }
+function initDeepSpace(){
+  nebulae=[
+    {x:width*.22,y:height*.28,rx:width*.35,ry:height*.26,rgb:"115, 60, 215",alpha:.18,rot:.4},
+    {x:width*.78,y:height*.32,rx:width*.38,ry:height*.28,rgb:"235, 75, 140",alpha:.14,rot:-.3},
+    {x:width*.65,y:height*.75,rx:width*.45,ry:height*.35,rgb:"35, 135, 245",alpha:.16,rot:.2},
+    {x:width*.18,y:height*.82,rx:width*.32,ry:height*.25,rgb:"235, 165, 80",alpha:.12,rot:-.5}
+  ];
+  const count=Math.round((width*height)/3600);
+  stars=[];
+  for(let i=0;i<count;i++){
+    const spike=Math.random()<.022;
+    stars.push({x:Math.random()*width,y:Math.random()*height,
+      radius:spike?Math.random()*1.4+1.2:Math.random()*.9+.25,
+      spectrum:STAR_SPECTRA[Math.floor(Math.random()*STAR_SPECTRA.length)],
+      twinkleSpeed:Math.random()*1.5+.5,phase:Math.random()*Math.PI*2,hasSpikes:spike});
+  }
+  galaxies=[
+    {x:width*.15,y:height*.18,radius:24,tilt:.55,rot:.7,rgb:"210, 225, 255"},
+    {x:width*.86,y:height*.82,radius:32,tilt:.35,rot:-.8,rgb:"255, 220, 190"}
+  ];
+}
 
-        // --- Datenbank & Übersetzungen ---
-        let currentLang = 'de';
-        let currentSphereIndex = 0;
+function spawnMeteor(){
+  const angle=Math.random()*.4+.35,direction=Math.random()<.5?1:-1;
+  meteors.push({x:Math.random()*width*(direction>0?.8:1),y:Math.random()*height*.35,
+    vx:Math.cos(angle)*direction*(14+Math.random()*8),vy:Math.sin(angle)*(14+Math.random()*8),
+    life:0,maxLife:28+Math.random()*20});
+}
 
-        const uiText = {
-            de: {
-                title: "Lex Causae",
-                subtitle: "Wähle eine Sphäre, um die kosmische Ordnung freizulegen.",
-                tabs: ["1. Axiom", "2. Biologie", "3. Kodex", "4. Praxis"],
-                bowl: "Klangschale resoniert..."
-            },
-            es: {
-                title: "Lex Causae",
-                subtitle: "Elige una esfera para revelar el orden cósmico.",
-                tabs: ["1. Axioma", "2. Biología", "3. Códice", "4. Práctica"],
-                bowl: "El cuenco tibetano resuena..."
-            }
-        };
+function drawGalaxies(){
+  for(const g of galaxies){
+    ctx.save();
+    ctx.translate(g.x,g.y);ctx.rotate(g.rot);ctx.scale(1,g.tilt);
+    const core=ctx.createRadialGradient(0,0,0,0,0,g.radius);
+    core.addColorStop(0,`rgba(${g.rgb}, 0.65)`);
+    core.addColorStop(.3,`rgba(${g.rgb}, 0.25)`);
+    core.addColorStop(1,'transparent');
+    ctx.fillStyle=core;
+    ctx.beginPath();ctx.arc(0,0,g.radius,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=`rgba(${g.rgb}, 0.18)`;ctx.lineWidth=1.2;
+    for(let arm=0;arm<2;arm++){
+      ctx.beginPath();
+      for(let th=0;th<4;th+=.1){
+        const r=(g.radius*.25)*Math.exp(.35*th),a=th+arm*Math.PI;
+        const ax=r*Math.cos(a),ay=r*Math.sin(a);
+        if(th===0)ctx.moveTo(ax,ay);else ctx.lineTo(ax,ay);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
 
-        const spheresData = [
-            {
-                de: {
-                    title: "I. Mentalismus",
-                    t1: "Information und Beobachtung gehen der Materie voraus; die Realität wird durch Gesetzmäßigkeiten strukturiert.",
-                    t2: "Das RAS (Retikuläres Aktivierungssystem) und der präfrontale Kortex filtern die Welt; worauf Aufmerksamkeit gerichtet wird, wird zur gefühlten Realität.",
-                    t3: "Ich herrsche über meinen Geist und lasse mich von keinen niederen Reizen lenken.",
-                    t4: "Gezielte mentale Stille, Fokus-Blöcke und radikale Reduktion von digitalem Rauschen, um die Zerstreuung der Gedanken zu stoppen."
-                },
-                es: {
-                    title: "I. Mentalismo",
-                    t1: "La información y la observación preceden a la materia; la realidad está estructurada por leyes universales.",
-                    t2: "El SARA y el córtex prefrontal filtran el mundo; aquello en lo que te enfocas se convierte en tu realidad percibida.",
-                    t3: "Domino mi mente y no me dejo guiar por estímulos inferiores ni distracciones.",
-                    t4: "Silencio mental deliberado, bloques de enfoque y reducción radical del ruido digital para detener la dispersión del pensamiento."
-                }
-            },
-            {
-                de: {
-                    title: "II. Wahrheit & Klarheit",
-                    t1: "Das Gesetz der Nicht-Widersprüchlichkeit; ein System kollabiert, wenn interne Daten fehlerhaft sind.",
-                    t2: "Lügen und Selbstbetrug erzeugen chronische Amygdala-Aktivierung, Cortisolausschüttung und kognitive Dissonanz.",
-                    t3: "Ich spreche und lebe die radikale Wahrheit; sie befreit von Furcht und macht unerschütterlich.",
-                    t4: "Gnadenlose Bestandsaufnahme (Reality Check): Finanzen, Gesundheit und Beziehungen ohne Schönfärberei protokollieren."
-                },
-                es: {
-                    title: "II. Verdad y Claridad",
-                    t1: "La ley de la no contradicción; un sistema colapsa si sus datos internos son defectuosos.",
-                    t2: "Las mentiras y el autoengaño generan activación crónica de la amígdala, liberación de cortisol y disonancia cognitiva.",
-                    t3: "Hablo y vivo la verdad radical; me libera del miedo y me hace inquebrantable.",
-                    t4: "Inventario implacable (Reality Check): Registrar finanzas, salud y relaciones sin autoengaños."
-                }
-            },
-            {
-                de: {
-                    title: "III. Schwingung & Tat",
-                    t1: "Stillstand existiert im Universum nicht; alles ist kinetische Energie und Bewegung.",
-                    t2: "Dopaminbelohnung folgt auf Bewegung und Problemlösung; Trägheit führt zu Neuroplastizität des Verfalls.",
-                    t3: "Ich wandle Gedanken sofort in Handlung um; wer zögert, wird gelebt – wer handelt, führt.",
-                    t4: "Das 5-Sekunden-Gesetz: Vom Impuls zur Tat ohne Zögern, um die Trägheitsbarriere der Entropie sofort zu zerschlagen."
-                },
-                es: {
-                    title: "III. Vibración y Acción",
-                    t1: "El estancamiento no existe en el universo; todo es energía cinética y movimiento.",
-                    t2: "La recompensa de dopamina sigue al movimiento y la resolución de problemas; la inercia lleva a la neuroplasticidad del declive.",
-                    t3: "Transformo los pensamientos en acción inmediatamente; quien duda, es arrastrado; quien actúa, lidera.",
-                    t4: "La regla de los 5 segundos: Del impulso al acto sin dudar, para destruir la barrera de inercia de la entropía."
-                }
-            },
-            {
-                de: {
-                    title: "IV. Polarität",
-                    t1: "Gegensätze sind zwei Pole desselben Phänomens (Kälte ist die Abwesenheit von Wärme).",
-                    t2: "Homöostase und Schmerz-Freude-Gleichgewicht; wer Schmerz meidet, verliert die Fähigkeit zu tiefer Erfüllung.",
-                    t3: "Widerstand ist kein Unglück, sondern das Material, an dem mein Wille wächst.",
-                    t4: "Willkürliche Härte (Amor Fati): Kälteexposition, schweres Training und gezielter Komfortverzicht, um emotionale Schwingungen zu zentrieren."
-                },
-                es: {
-                    title: "IV. Polaridad",
-                    t1: "Los opuestos son dos polos del mismo fenómeno (el frío es la ausencia de calor).",
-                    t2: "Homeostasis y equilibrio dolor-placer; quien evita el dolor pierde la capacidad de experimentar una realización profunda.",
-                    t3: "La resistencia no es una desgracia, sino el material en el que crece y se forja mi voluntad.",
-                    t4: "Dureza voluntaria (Amor Fati): Exposición al frío, entrenamiento duro y renuncia al confort para centrar las vibraciones."
-                }
-            },
-            {
-                de: {
-                    title: "V. Rhythmus & Balance",
-                    t1: "Periodische Schwingungen, Wellenbewegungen und Kreisbahnen bestimmen alle Naturzyklen.",
-                    t2: "Zirkadiane Rhythmen, Hormonzyklen (Cortisol/Melatonin), Ultradiane Leistungsphasen.",
-                    t3: "Jeder Tag beginnt mit bewusster Ordnung; wo Rhythmus und Disziplin herrschen, weicht das Chaos.",
-                    t4: "Feste Schlaf-, Fasten- und Arbeitsfenster; Wiederherstellung natürlicher Taktung gegen die Verwahrlosung des Alltags."
-                },
-                es: {
-                    title: "V. Ritmo y Equilibrio",
-                    t1: "Las vibraciones periódicas, los movimientos ondulatorios y las órbitas determinan los ciclos naturales.",
-                    t2: "Ritmos circadianos, ciclos hormonales (cortisol/melatonina), fases de rendimiento ultradianas.",
-                    t3: "Cada día comienza con orden consciente; donde reina el ritmo y la disciplina, el caos retrocede.",
-                    t4: "Ventanas estrictas de sueño, ayuno y trabajo; restauración del ritmo natural contra la negligencia."
-                }
-            },
-            {
-                de: {
-                    title: "VI. Kausalität",
-                    t1: "Jede Wirkung besitzt eine zwingende Ursache; das Kausalitätsprinzip duldet keine Zufälle.",
-                    t2: "Interner Kontrollort (Internal Locus of Control); Opfermentalität lähmt das Nervensystem, Eigenverantwortung mobilisiert Energie.",
-                    t3: "Ich bin niemals das Opfer der Umstände, sondern stets die bewusste Ursache meines Schicksals.",
-                    t4: "Ursachen-Rückverfolgung: Bei jedem Fehler sofort fragen: 'Welche Ursache habe ich gesetzt?' – und den Hebel ansetzen."
-                },
-                es: {
-                    title: "VI. Causalidad",
-                    t1: "Toda causa tiene su efecto; el principio de causalidad no tolera el azar.",
-                    t2: "Locus de control interno; la mentalidad de víctima paraliza el sistema nervioso, la responsabilidad moviliza energía.",
-                    t3: "Nunca soy víctima de las circunstancias, sino siempre la causa consciente de mi destino.",
-                    t4: "Rastreo de causas: Ante cada error, preguntar '¿Qué causa he plantado?' y ajustar la propia conducta."
-                }
-            },
-            {
-                de: {
-                    title: "VII. Generierung & Vertrauen",
-                    t1: "Schöpfung erfordert die Verschmelzung zweier Pole (Struktur und Dynamik, Ordnung und Chaos).",
-                    t2: "Das parasympathische System (Regeneration) nährt den Willen; Schöpfungskraft entsteht erst, wenn chronische Überlebensangst weicht.",
-                    t3: "Ich schütze meine Kraft, wirke integer und großzügig und lasse mein Werk für sich sprechen.",
-                    t4: "Aufbau langlebiger Systeme: Vermögensaufbau, bleibende Dokumente, Weitergabe von Wissen – Ordnung schaffen für die Ewigkeit."
-                },
-                es: {
-                    title: "VII. Generación y Confianza",
-                    t1: "La creación requiere la fusión de dos polos (estructura y dinámica, orden y caos).",
-                    t2: "El sistema parasimpático nutre la voluntad; la fuerza creativa surge cuando el miedo a la supervivencia desaparece.",
-                    t3: "Protejo mi fuerza, actúo con integridad y generosidad, y dejo que mi obra hable por sí misma.",
-                    t4: "Construcción de sistemas duraderos: Creación de patrimonio, documentos legados, transmisión de conocimientos para la posteridad."
-                }
-            }
-        ];
+function renderDeepSpaceFrame(ts){
+  ctx.clearRect(0,0,width,height);
+  for(const n of nebulae){
+    ctx.save();
+    ctx.translate(n.x,n.y);ctx.rotate(n.rot);
+    const grad=ctx.createRadialGradient(0,0,0,0,0,Math.max(n.rx,n.ry));
+    grad.addColorStop(0,`rgba(${n.rgb}, ${n.alpha})`);
+    grad.addColorStop(.5,`rgba(${n.rgb}, ${n.alpha*.45})`);
+    grad.addColorStop(1,'transparent');
+    ctx.fillStyle=grad;
+    ctx.beginPath();ctx.ellipse(0,0,n.rx,n.ry,0,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+  drawGalaxies();
+  for(const s of stars){
+    const tw=.5+.5*Math.sin((ts/1000)*s.twinkleSpeed+s.phase),alpha=.25+.75*tw;
+    ctx.fillStyle=`rgba(${s.spectrum}, ${alpha})`;
+    ctx.beginPath();ctx.arc(s.x,s.y,s.radius*(.85+.25*tw),0,Math.PI*2);ctx.fill();
+    if(s.hasSpikes){
+      const len=s.radius*4.8*(.7+.3*tw);
+      ctx.strokeStyle=`rgba(${s.spectrum}, ${alpha*.6})`;ctx.lineWidth=.65;
+      ctx.beginPath();
+      ctx.moveTo(s.x-len,s.y);ctx.lineTo(s.x+len,s.y);
+      ctx.moveTo(s.x,s.y-len);ctx.lineTo(s.x,s.y+len);
+      ctx.stroke();
+    }
+  }
+  if(ts>nextMeteorTime){spawnMeteor();nextMeteorTime=ts+3200+Math.random()*5500}
+  meteors=meteors.filter(m=>m.life<m.maxLife);
+  for(const m of meteors){
+    m.x+=m.vx;m.y+=m.vy;m.life++;
+    const pr=1-m.life/m.maxLife,tx=m.x-m.vx*3.5,ty=m.y-m.vy*3.5;
+    const g=ctx.createLinearGradient(m.x,m.y,tx,ty);
+    g.addColorStop(0,`rgba(255, 255, 255, ${pr})`);
+    g.addColorStop(1,'rgba(160, 200, 255, 0)');
+    ctx.strokeStyle=g;ctx.lineWidth=1.6;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(m.x,m.y);ctx.lineTo(tx,ty);ctx.stroke();
+  }
+  requestAnimationFrame(renderDeepSpaceFrame);
+}
 
-        // --- DOM-Interaktion ---
-        function renderSpheres() {
-            const container = document.getElementById("spheres-container");
-            container.innerHTML = "";
-            spheresData.forEach((sphere, i) => {
-                const div = document.createElement("div");
-                div.className = "sphere";
-                div.onclick = () => openModal(i);
-                div.innerHTML = `
-                    <div class="planet p${i+1}"></div>
-                    <div class="sphere-title">${sphere[currentLang].title}</div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function setLanguage(lang) {
-            currentLang = lang;
-            document.getElementById("btn-de").classList.toggle("active", lang === 'de');
-            document.getElementById("btn-es").classList.toggle("active", lang === 'es');
-            
-            document.getElementById("main-title").innerText = uiText[lang].title;
-            document.getElementById("main-subtitle").innerText = uiText[lang].subtitle;
-            document.getElementById("bowl-text").innerText = uiText[lang].bowl;
-            
-            for(let i=1; i<=4; i++) {
-                document.getElementById(`tab-btn-${i}`).innerText = uiText[lang].tabs[i-1];
-            }
-            
-            renderSpheres();
-            
-            if (document.getElementById("modal").classList.contains("active")) {
-                populateModal(currentSphereIndex);
-            }
-        }
-
-        function populateModal(index) {
-            const data = spheresData[index][currentLang];
-            document.getElementById("modal-title").innerText = data.title;
-            document.getElementById("tab-1").innerText = data.t1;
-            document.getElementById("tab-2").innerText = data.t2;
-            document.getElementById("tab-3").innerText = data.t3;
-            document.getElementById("tab-4").innerText = data.t4;
-        }
-
-        function openModal(index) {
-            currentSphereIndex = index;
-            populateModal(index);
-            switchTab(1);
-            document.getElementById("modal").classList.add("active");
-            playSingingBowl(index);
-        }
-
-        function closeModal() {
-            document.getElementById("modal").classList.remove("active");
-        }
-
-        function switchTab(tabNum) {
-            for(let i=1; i<=4; i++) {
-                document.getElementById("tab-"+i).classList.remove("active");
-                document.getElementById(`tab-btn-${i}`).classList.remove("active");
-            }
-            document.getElementById("tab-"+tabNum).classList.add("active");
-            document.getElementById(`tab-btn-${tabNum}`).classList.add("active");
-        }
-
-        window.onclick = function(event) {
-            const modal = document.getElementById("modal");
-            if (event.target === modal) {
-                closeModal();
-            }
-        };
-
-        // Start initialisieren
-        setLanguage('de');
-    </script>
+window.addEventListener("resize",resizeCanvas);
+resizeCanvas();
+updateHUDText();
+setupStage();
+requestAnimationFrame(renderDeepSpaceFrame);
+</script>
 </body>
 </html>
